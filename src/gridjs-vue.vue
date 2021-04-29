@@ -6,9 +6,7 @@
 import { Grid } from 'gridjs'
 import { nanoid } from 'nanoid'
 import elementReady from 'element-ready'
-
 import themeMermaid from 'gridjs/dist/theme/mermaid.css'
-
 export default {
   name: 'Grid',
   props: {
@@ -96,7 +94,6 @@ export default {
         sort: this.sort,
         width: this.width
       }
-
       if (this.classNames) options.className = this.classNames
       if (this.from)
         options.from =
@@ -107,7 +104,6 @@ export default {
       if (this.search) options.search = this.search
       if (this.server) options.server = this.server
       if (this.styles) options.style = this.styles
-
       return options
     }
   },
@@ -155,19 +151,16 @@ export default {
   async mounted() {
     // give table a unique id
     this.uuid = nanoid()
-
     // select the unique wrapper element
     this.wrapper = await elementReady(`[data-uuid="${this.uuid}"]`, { stopOnDomReady: false })
-
     // assign styles
     if (this.theme !== 'none') await this.assignTheme()
-
     // instantiate grid.js
     if (this.wrapper && (this.options.data || this.options.from || this.options.server)) {
       this.grid = new Grid(this.options).render(this.wrapper)
     }
   },
-  destroyed() {
+  unmounted() {
     // unload from memory
     this.grid = undefined
     this.wrapper = undefined
@@ -176,18 +169,15 @@ export default {
     async assignTheme() {
       const head = document.getElementsByTagName('head')[0]
       const id = `gridjs__${this.uuid}`
-
       let stylesheet = document.createRange().createContextualFragment(`
         <style title="${id}_theme" type="text/css">
           ${this.themes[this.theme]}
         </style>
       `)
       head.appendChild(stylesheet)
-
       for (let index in document.styleSheets) {
         if (document.styleSheets[index].title === `${id}_theme`) stylesheet = document.styleSheets[index]
       }
-
       if (stylesheet instanceof CSSStyleSheet) {
         for (const index in stylesheet.cssRules) {
           let css = stylesheet.cssRules[index].cssText
